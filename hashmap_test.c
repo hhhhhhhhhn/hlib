@@ -46,4 +46,26 @@ int main() {
 	};
 
 	hhashmap_free(&map);
+
+	map = hhashmap_new(sizeof(int), sizeof(int), HKEYTYPE_DIRECT);
+	for (int key = -512; key < 512; key += 2) {
+		int value = -key;
+		hhashmap_set(&map, &key, &value);
+	}
+	for (int key = -511; key < 511; key += 2) {
+		int value = key*2;
+		hhashmap_set(&map, &key, &value);
+	}
+
+	for (int key = -512; key < 512; key += 2) {
+		hhashmap_delete(&map, &key);
+	}
+
+	index = 0;
+	while(hhashmap_next(&map, &key, &value, &index)) {
+		assert((*key % 2 == 1) || (*key % 2 == -1));
+		assert(*value == *key*2);
+	}
+
+	hhashmap_free(&map);
 }

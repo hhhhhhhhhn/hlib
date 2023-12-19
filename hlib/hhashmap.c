@@ -1,5 +1,4 @@
 #include "core.h"
-#include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
 
@@ -8,7 +7,13 @@ typedef struct HKeyType {
 	bool (*eq)(void* key1, void* key2, size_t size);
 } HKeyType;
 
-// TODO: Store key-value pairs for memory coherence, (padding is needed)
+// internal
+typedef struct EntryInfo {
+	bool occupied;
+	bool deleted;
+} EntryInfo;
+
+// TODO: Store key-value pairs for memory coherence, (alignment is needed)
 typedef struct HHashMap {
 	size_t len;
 	size_t cap;
@@ -16,7 +21,7 @@ typedef struct HHashMap {
 	size_t value_size;
 	void* keys;
 	void* values;
-	bool* occupied;
+	EntryInfo* info;
 	HKeyType type;
 } HHashMap;
 
@@ -25,8 +30,9 @@ HHashMap hhashmap_new_with_cap(size_t key_size, size_t value_size, HKeyType type
 	nullpanic(keys);
 	void* values = malloc(cap * value_size);
 	nullpanic(values);
-	void* occupied = malloc(cap * sizeof(bool));
-	nullpanic(occupied);
+	EntryInfo* info = malloc(cap * sizeof(EntryInfo));
+	nullpanic(info);
+	memset(info, 0, cap*sizeof(EntryInfo));
 
 	return (HHashMap) {
 		.len = 0,
@@ -36,7 +42,7 @@ HHashMap hhashmap_new_with_cap(size_t key_size, size_t value_size, HKeyType type
 		.keys = keys,
 		.values = values,
 		.type = type,
-		.occupied = occupied,
+		.info = info,
 	};
 }
 
@@ -46,7 +52,7 @@ HHashMap hhashmap_new(size_t key_size, size_t value_size, HKeyType type) {
 
 // Index must start as 0
 bool hhashmap_next(HHashMap* map, void** ret_key, void** ret_value, size_t* index) {
-	while(*index < map->cap && !map->occupied[*index]) {
+	while(*index < map->cap && (!map->info[*index].occupied || map->info[*index].deleted)) {
 		(*index)++;
 	}
 	if (*index >= map->cap) {
@@ -84,8 +90,9 @@ void hhashmap_set(HHashMap* map, void* key, void* value) {
 	size_t index = map->type.hash(key, map->key_size) % map->cap;
 
 	for(size_t safety = 0; safety < map->len+1; safety++) {
-		if (!map->occupied[index]) {
-			map->occupied[index] = true;
+		if (!map->info[index].occupied || map->info[index].deleted) {
+			map->info[index].occupied = true;
+			map->info[index].deleted = false;
 			memcpy((char*)map->keys + index*map->key_size, key, map->key_size);
 			memcpy((char*)map->values + index*map->value_size, value, map->value_size);
 			map->len++;
@@ -102,9 +109,13 @@ int hhashmap_get_index(HHashMap* map, void* key) {
 	size_t hash = map->type.hash(key, map->key_size);
 	int index = hash % map->cap;
 
-	for(size_t safety = 0; safety < map->len+1; safety++) {
-		if (!map->occupied[index]) {
+	for(size_t safety = 0; safety < map->cap; safety++) {
+		if (!map->info[index].occupied) {
 			break;
+		}
+		if (map->info[index].deleted) {
+			index++;
+			continue;
 		}
 		if (map->type.eq(key, (char*)map->keys + index*map->key_size, map->key_size)) {
 			return index;
@@ -131,14 +142,14 @@ void hhashmap_delete(HHashMap* map, void* key) {
 		return;
 	}
 
-	map->occupied[index] = false;
+	map->info[index].deleted = true;
 	map->len--;
 }
 
 void hhashmap_free(HHashMap* map) {
 	free(map->keys);
 	free(map->values);
-	free(map->occupied);
+	free(map->info);
 }
 
 bool hkeytype_direct_eq(void* key1, void* key2, size_t size) {

@@ -11,6 +11,12 @@ typedef struct HKeyType {
 	bool (*eq)(void* key1, void* key2, size_t size);
 } HKeyType;
 
+// internal. TODO: Hide
+typedef struct EntryInfo {
+	bool occupied;
+	bool deleted;
+} EntryInfo;
+
 typedef struct HHashMap {
 	size_t len;
 	size_t cap;
@@ -18,7 +24,7 @@ typedef struct HHashMap {
 	size_t value_size;
 	void* keys;
 	void* values;
-	bool* occupied;
+	EntryInfo* info;
 	HKeyType type;
 } HHashMap;
 
