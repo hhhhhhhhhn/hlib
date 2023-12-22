@@ -1,18 +1,8 @@
 #include "core.h"
-#include "stdbool.h"
+#include <stdbool.h>
+#include <assert.h>
 #include <stdio.h>
-
-typedef struct HStringView {
-	char* data;
-	size_t len;
-} HStringView;
-
-typedef struct HStringBuilder {
-	char* data;
-	size_t len;
-	size_t cap;
-} HStringBuilder;
-
+#include "hstring.h"
 
 HStringView hstring_view_new(char* data, size_t len) {
 	return (HStringView) {
@@ -67,6 +57,22 @@ HStringView hstring_view_split_while_predicate(HStringView* view, bool(*pred)(ch
 	hstring_view_consume_chars(view, i);
 
 	return result;
+}
+
+bool hstring_view_write_to_file(HStringView* view, FILE* file) {
+	int written = fprintf(file, "%.*s", (int)view->len, view->data);;
+	return (size_t)written == view->len;
+}
+
+bool hstring_view_write_to_path(HStringView* view, char* path) {
+	FILE* file = fopen(path, "w");
+	if (file == NULL) {
+		return false;
+	}
+	bool status = hstring_view_write_to_file(view, file);
+	bool close_status = fclose(file);
+	assert(close_status);
+	return status;
 }
 
 bool hstring_is_whitespace(char c) {

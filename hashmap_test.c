@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <stdio.h>
+#include <string.h>
 #include "hlib/hhashmap.h"
 
 typedef char key[64];

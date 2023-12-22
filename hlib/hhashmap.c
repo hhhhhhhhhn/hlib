@@ -7,13 +7,12 @@ typedef struct HKeyType {
 	bool (*eq)(void* key1, void* key2, size_t size);
 } HKeyType;
 
-// internal
+// internal. TODO: Hide
 typedef struct EntryInfo {
 	bool occupied;
 	bool deleted;
 } EntryInfo;
 
-// TODO: Store key-value pairs for memory coherence, (alignment is needed)
 typedef struct HHashMap {
 	size_t len;
 	size_t cap;
@@ -50,6 +49,12 @@ HHashMap hhashmap_new(size_t key_size, size_t value_size, HKeyType type) {
 	return hhashmap_new_with_cap(key_size, value_size, type, 128);
 }
 
+void hhashmap_free(HHashMap* map) {
+	free(map->keys);
+	free(map->values);
+	free(map->info);
+}
+
 // Index must start as 0
 bool hhashmap_next(HHashMap* map, void** ret_key, void** ret_value, size_t* index) {
 	while(*index < map->cap && (!map->info[*index].occupied || map->info[*index].deleted)) {
@@ -66,7 +71,6 @@ bool hhashmap_next(HHashMap* map, void** ret_key, void** ret_value, size_t* inde
 }
 
 void hhashmap_set(HHashMap* map, void* key, void* value);
-void hhashmap_free(HHashMap* map);
 // internal
 void hhashmap_grow(HHashMap* map) {
 	HHashMap new_map = hhashmap_new_with_cap(map->key_size, map->value_size, map->type, map->cap*2);
@@ -144,12 +148,6 @@ void hhashmap_delete(HHashMap* map, void* key) {
 
 	map->info[index].deleted = true;
 	map->len--;
-}
-
-void hhashmap_free(HHashMap* map) {
-	free(map->keys);
-	free(map->values);
-	free(map->info);
 }
 
 bool hkeytype_direct_eq(void* key1, void* key2, size_t size) {

@@ -2,9 +2,7 @@
 #define HLIB_HHASHMAP_H
 
 #include "core.h"
-#include <stdint.h>
 #include <stdbool.h>
-#include <string.h>
 
 typedef struct HKeyType {
 	size_t (*hash)(void* key, size_t size);
@@ -30,7 +28,7 @@ typedef struct HHashMap {
 
 HHashMap hhashmap_new_with_cap(size_t key_size, size_t value_size, HKeyType type, size_t cap);
 HHashMap hhashmap_new(size_t key_size, size_t value_size, HKeyType type);
-bool hhashmap_next(HHashMap* map, void* ret_key, void* ret_value, size_t* index);
+bool hhashmap_next(HHashMap* map, void* ret_key, void* ret_value, size_t* index); // ret_key and ret_value are TYPE**, see hashmap_test
 void hhashmap_set(HHashMap* map, void* key, void* value);
 void* hhashmap_get(HHashMap* map, void* key);
 void hhashmap_delete(HHashMap* map, void* key);

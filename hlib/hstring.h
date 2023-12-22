@@ -22,6 +22,8 @@ HStringView hstring_view_slice(HStringView view, size_t start, size_t end);
 void hstring_view_consume_chars(HStringView* view, size_t count);
 HStringView hstring_view_split_char(HStringView* view, char delim);
 HStringView hstring_view_split_while_predicate(HStringView* view, bool(*pred)(char));
+bool hstring_view_write_to_file(HStringView* view, FILE* file);
+bool hstring_view_write_to_path(HStringView* view, char* path);
 
 bool hstring_is_whitespace(char c);
 

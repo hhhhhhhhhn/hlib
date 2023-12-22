@@ -3,13 +3,7 @@
 #include <assert.h>
 #include <string.h>
 #include "core.h"
-
-typedef struct HVec {
-	size_t element_size;
-	size_t len;
-	size_t cap;
-	void* data;
-} HVec;
+#include "hvec.h"
 
 HVec hvec_new_with_cap(size_t element_size, size_t cap) {
 	void* data = malloc(cap * element_size);

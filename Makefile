@@ -12,7 +12,7 @@ hlib.o: $(wildcard hlib/*.c)
 %_test: %_test.c hlib.o
 	cc $(CFLAGS) -o $@ $< hlib.o
 
-tests: mem_test vec_test string_test hashmap_test
+tests: mem_test vec_test string_test hashmap_test arena_test sort_test
 
 clean:
 	rm -f *.o *_test

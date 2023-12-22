@@ -2,3 +2,5 @@
 #include "hvec.c"
 #include "hstring.c"
 #include "hhashmap.c"
+#include "harena.c"
+#include "hsort.c"
