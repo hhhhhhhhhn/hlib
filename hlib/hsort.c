@@ -43,7 +43,7 @@ void hsort(void* data, size_t len, size_t element_size, int (*cmp)(void* a, void
 		return;
 	}
 	char* dataa = (char*)data;
-	intmax_t pivot = median_of_3_pivot(data, len, element_size, cmp);  // TODO: improve
+	intmax_t pivot = median_of_3_pivot(data, len, element_size, cmp);
 	intmax_t low = 0;
 	intmax_t high = len-2;
 

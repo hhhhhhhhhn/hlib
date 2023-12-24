@@ -18,6 +18,8 @@ void* realloc_print(void* ptr, size_t size, const char* file, int line);
 #define nullpanic(ptr) if (!(ptr)) {fprintf(stderr, "Unexpected null at %s:%d\n", __FILE__, __LINE__); exit(1);}
 #define todo() do {fprintf(stderr, "Not implemented at %s:%d\n", __FILE__, __LINE__); exit(1);} while(0);
 #define unreachable() do {fprintf(stderr, "Unreachable at %s:%d\n", __FILE__, __LINE__); exit(1);} while(0);
+#define panic(str) do {fprintf(stderr, "Panic: " str " at %s:%d\n", __FILE__, __LINE__); exit(1);} while(0);
+#define panicf(str, ...) do {fprintf(stderr, "Panic: " str " at %s:%d\n", __VA_ARGS__, __FILE__, __LINE__); exit(1);} while(0);
 
 #define ARCH_BYTES (sizeof(size_t))
 #define ARCH_BITS (sizeof(size_t)*8)

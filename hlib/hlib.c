@@ -4,3 +4,4 @@
 #include "hhashmap.c"
 #include "harena.c"
 #include "hsort.c"
+#include "hflag.c"
