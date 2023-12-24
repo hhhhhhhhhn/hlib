@@ -1,30 +1,9 @@
-#include "core.h"
 #include <stdbool.h>
 #include <string.h>
+#include "hhashmap.h"
+#include "core.h"
 
-typedef struct HKeyType {
-	size_t (*hash)(void* key, size_t size);
-	bool (*eq)(void* key1, void* key2, size_t size);
-} HKeyType;
-
-// internal. TODO: Hide
-typedef struct EntryInfo {
-	bool occupied;
-	bool deleted;
-} EntryInfo;
-
-typedef struct HHashMap {
-	size_t len;
-	size_t cap;
-	size_t key_size;
-	size_t value_size;
-	void* keys;
-	void* values;
-	EntryInfo* info;
-	HKeyType type;
-} HHashMap;
-
-HHashMap hhashmap_new_with_cap(size_t key_size, size_t value_size, HKeyType type, size_t cap) {
+HHashMap hhashmap_new_with_cap(usize key_size, usize value_size, HKeyType type, usize cap) {
 	void* keys = malloc(cap * key_size);
 	nullpanic(keys);
 	void* values = malloc(cap * value_size);
@@ -45,7 +24,7 @@ HHashMap hhashmap_new_with_cap(size_t key_size, size_t value_size, HKeyType type
 	};
 }
 
-HHashMap hhashmap_new(size_t key_size, size_t value_size, HKeyType type) {
+HHashMap hhashmap_new(usize key_size, usize value_size, HKeyType type) {
 	return hhashmap_new_with_cap(key_size, value_size, type, 128);
 }
 
@@ -55,8 +34,10 @@ void hhashmap_free(HHashMap* map) {
 	free(map->info);
 }
 
-// Index must start as 0
-bool hhashmap_next(HHashMap* map, void** ret_key, void** ret_value, size_t* index) {
+// Index must start as 0, out_key and out_value are pointers to pointers to the type
+bool hhashmap_next(HHashMap* map, void* out_key, void* out_value, usize* index) {
+	void** ret_key = out_key;
+	void** ret_value = out_value;
 	while(*index < map->cap && (!map->info[*index].occupied || map->info[*index].deleted)) {
 		(*index)++;
 	}
@@ -76,7 +57,7 @@ void hhashmap_grow(HHashMap* map) {
 	HHashMap new_map = hhashmap_new_with_cap(map->key_size, map->value_size, map->type, map->cap*2);
 	void* key;
 	void* value;
-	size_t index = 0;
+	usize index = 0;
 
 	while(hhashmap_next(map, &key, &value, &index)) {
 		hhashmap_set(&new_map, key, value);
@@ -91,9 +72,9 @@ void hhashmap_set(HHashMap* map, void* key, void* value) {
 	if (4*map->len > 3*map->cap) { // A 0.75 load factor
 		hhashmap_grow(map);
 	}
-	size_t index = map->type.hash(key, map->key_size) % map->cap;
+	usize index = map->type.hash(key, map->key_size) % map->cap;
 
-	for(size_t safety = 0; safety < map->len+1; safety++) {
+	for(usize safety = 0; safety < map->len+1; safety++) {
 		if (!map->info[index].occupied || map->info[index].deleted) {
 			map->info[index].occupied = true;
 			map->info[index].deleted = false;
@@ -110,10 +91,10 @@ void hhashmap_set(HHashMap* map, void* key, void* value) {
 // Returns -1 if not found
 // internal
 int hhashmap_get_index(HHashMap* map, void* key) {
-	size_t hash = map->type.hash(key, map->key_size);
+	usize hash = map->type.hash(key, map->key_size);
 	int index = hash % map->cap;
 
-	for(size_t safety = 0; safety < map->cap; safety++) {
+	for(usize safety = 0; safety < map->cap; safety++) {
 		if (!map->info[index].occupied) {
 			break;
 		}
@@ -150,14 +131,14 @@ void hhashmap_delete(HHashMap* map, void* key) {
 	map->len--;
 }
 
-bool hkeytype_direct_eq(void* key1, void* key2, size_t size) {
+bool hkeytype_direct_eq(void* key1, void* key2, usize size) {
 	return memcmp(key1, key2, size) == 0;
 }
 
 // sdbm
-size_t hkeytype_direct_hash(void* key, size_t size) {
-	size_t hash = 0;
-	for (size_t i = 0; i < size; i++) {
+usize hkeytype_direct_hash(void* key, usize size) {
+	usize hash = 0;
+	for (usize i = 0; i < size; i++) {
 		hash = ((char*)key)[i] + (hash << 6) + (hash << 16) - hash;
 	}
 	return hash;

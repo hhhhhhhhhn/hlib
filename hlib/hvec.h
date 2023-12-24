@@ -1,19 +1,19 @@
 #ifndef HLIB_HVEC_H
 #define HLIB_HVEC_H
 
-#include <stddef.h>
+#include "core.h"
 
 typedef struct HVec {
-	size_t element_size;
-	size_t len;
-	size_t cap;
+	usize element_size;
+	usize len;
+	usize cap;
 	void* data;
 } HVec;
 
-HVec hvec_new_with_cap(size_t element_size, size_t cap);
-HVec hvec_new(size_t element_size);
+HVec hvec_new_with_cap(usize element_size, usize cap);
+HVec hvec_new(usize element_size);
 void hvec_push(HVec* vec, void* element);
 void hvec_free(HVec* vec);
-void* hvec_at(HVec* vec, size_t index);
+void* hvec_at(HVec* vec, usize index);
 
 #endif

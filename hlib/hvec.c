@@ -5,7 +5,7 @@
 #include "core.h"
 #include "hvec.h"
 
-HVec hvec_new_with_cap(size_t element_size, size_t cap) {
+HVec hvec_new_with_cap(usize element_size, usize cap) {
 	void* data = malloc(cap * element_size);
 	nullpanic(data);
 	HVec vec = {
@@ -18,12 +18,12 @@ HVec hvec_new_with_cap(size_t element_size, size_t cap) {
 	return vec;
 }
 
-HVec hvec_new(size_t element_size) {
+HVec hvec_new(usize element_size) {
 	return hvec_new_with_cap(element_size, 16);
 }
 
 // internal
-void hvec_resize(HVec* vec, size_t new_cap) {
+void hvec_resize(HVec* vec, usize new_cap) {
 	assert(new_cap >= vec->len);
 
 	void* new_data = realloc(vec->data, new_cap*vec->element_size);
@@ -36,7 +36,7 @@ void hvec_push(HVec* vec, void* element) {
 	if (vec->len >= vec->cap) {
 		hvec_resize(vec, vec->cap * 2);
 	}
-	void* destination = (char*)vec->data + vec->len*vec->element_size;
+	void* destination = (u8*)vec->data + vec->len*vec->element_size;
 	memcpy(destination, element, vec->element_size);
 	vec->len++;
 }
@@ -45,9 +45,9 @@ void hvec_free(HVec* vec) {
 	free(vec->data);
 }
 
-void* hvec_at(HVec* vec, size_t index) {
+void* hvec_at(HVec* vec, usize index) {
 	if (index >= vec->len) {
 		return NULL;
 	}
-	return (char*)vec->data + index*vec->element_size;
+	return (u8*)vec->data + index*vec->element_size;
 }

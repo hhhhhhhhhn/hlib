@@ -1,25 +1,25 @@
 #include "core.h"
+#include "hsort.h"
 #include <stdbool.h>
-#include <stdint.h>
 
-void memswap(void* a, void* b, size_t len) {
-	char* aa = (char*)a;
-	char* bb = (char*)b;
-	for(size_t i = 0; i < len; i++) {
-		char tmp = *(aa + i);
+void memswap(void* a, void* b, usize len) {
+	u8* aa = (u8*)a;
+	u8* bb = (u8*)b;
+	for(usize i = 0; i < len; i++) {
+		u8 tmp = *(aa + i);
 		*(aa + i) = *(bb + i);
 		*(bb + i) = tmp;
 	}
 }
 
-size_t median_of_3_pivot(void* data, size_t len, size_t element_size, int (*cmp)(void* a, void* b)) {
-	size_t a_index = 0;
-	size_t b_index = len/2;
-	size_t c_index = len-1;
+usize median_of_3_pivot(void* data, usize len, usize element_size, i32 (*cmp)(void* a, void* b)) {
+	usize a_index = 0;
+	usize b_index = len/2;
+	usize c_index = len-1;
 
-	void* a = (char*)data + a_index*element_size;
-	void* b = (char*)data + b_index*element_size;
-	void* c = (char*)data + c_index*element_size;
+	void* a = (u8*)data + a_index*element_size;
+	void* b = (u8*)data + b_index*element_size;
+	void* c = (u8*)data + c_index*element_size;
 
 	bool a_lt_b = cmp(a, b) < 0;
 	bool b_lt_c = cmp(b, c) < 0;
@@ -38,20 +38,20 @@ size_t median_of_3_pivot(void* data, size_t len, size_t element_size, int (*cmp)
 }
 
 // quicksort
-void hsort(void* data, size_t len, size_t element_size, int (*cmp)(void* a, void* b)) {
+void hsort(void* data, usize len, usize element_size, i32 (*cmp)(void* a, void* b)) {
 	if (len < 2) {
 		return;
 	}
-	char* dataa = (char*)data;
-	intmax_t pivot = median_of_3_pivot(data, len, element_size, cmp);
-	intmax_t low = 0;
-	intmax_t high = len-2;
+	u8* dataa = (u8*)data;
+	isize pivot = median_of_3_pivot(data, len, element_size, cmp);
+	isize low = 0;
+	isize high = len-2;
 
 	memswap(dataa + pivot*element_size, dataa + (len-1)*element_size, element_size);
 	pivot = len-1;
 
 	while(true) {
-		while (cmp(dataa + low*element_size, dataa + pivot*element_size) < 0 && low < (intmax_t)len) {
+		while (cmp(dataa + low*element_size, dataa + pivot*element_size) < 0 && low < (isize)len) {
 			low++;
 		}
 		while (cmp(dataa + high*element_size, dataa + pivot*element_size) > 0 && high >= 0) {
@@ -68,5 +68,5 @@ void hsort(void* data, size_t len, size_t element_size, int (*cmp)(void* a, void
 	}
 
 	hsort(data, pivot, element_size, cmp);
-	hsort((char*)data + (pivot+1)*element_size, len - pivot - 1, element_size, cmp);
+	hsort((u8*)data + (pivot+1)*element_size, len - pivot - 1, element_size, cmp);
 }

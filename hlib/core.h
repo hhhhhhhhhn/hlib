@@ -1,13 +1,29 @@
 #ifndef HLIB_CORE_H
 #define HLIB_CORE_H
 
-#include <stddef.h>
-#include <stdio.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <stdint.h>
+#include <stdbool.h>
 
-void* malloc_print(size_t size, const char* file, int line);
+typedef uint8_t u8;
+typedef uint16_t u16;
+typedef uint32_t u32;
+typedef uint64_t u64;
+typedef uintptr_t usize;
+
+typedef int8_t i8;
+typedef int16_t i16;
+typedef int32_t i32;
+typedef int64_t i64;
+typedef intptr_t isize;
+
+typedef float f32;
+typedef double f64;
+
+void* malloc_print(usize size, const char* file, int line);
 void free_print(void* ptr, const char* file, int line);
-void* realloc_print(void* ptr, size_t size, const char* file, int line);
+void* realloc_print(void* ptr, usize size, const char* file, int line);
 
 #ifdef HLIB_DEBUG
 #define malloc(size) malloc_print(size, __FILE__, __LINE__)
@@ -21,7 +37,7 @@ void* realloc_print(void* ptr, size_t size, const char* file, int line);
 #define panic(str) do {fprintf(stderr, "Panic: " str " at %s:%d\n", __FILE__, __LINE__); exit(1);} while(0);
 #define panicf(str, ...) do {fprintf(stderr, "Panic: " str " at %s:%d\n", __VA_ARGS__, __FILE__, __LINE__); exit(1);} while(0);
 
-#define ARCH_BYTES (sizeof(size_t))
-#define ARCH_BITS (sizeof(size_t)*8)
+#define ARCH_BYTES (sizeof(usize))
+#define ARCH_BITS (sizeof(usize)*8)
 
 #endif

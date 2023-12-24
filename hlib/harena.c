@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <assert.h>
 
-HStaticArena hstaticarena_new(size_t cap) {
+HStaticArena hstaticarena_new(usize cap) {
 	void* data = malloc(cap);
 	nullpanic(data);
 	return (HStaticArena) {
@@ -14,11 +14,11 @@ HStaticArena hstaticarena_new(size_t cap) {
 }
 
 // Returns NULL if out of memory
-void* hstaticarena_alloc(HStaticArena* arena, size_t size) {
+void* hstaticarena_alloc(HStaticArena* arena, usize size) {
 	if (size > arena->cap - arena->used) {
 		return NULL;
 	}
-	void* ptr = ((char*)arena->data) + arena->used;
+	void* ptr = ((u8*)arena->data) + arena->used;
 	arena->used += size;
 
 	return ptr;
@@ -31,7 +31,7 @@ void hstaticarena_free(HStaticArena* arena) {
 #define ARENA_AMOUNT 30 // Can handle about 1TB, should be enough
 						// every next arena is double the last
 
-HArena harena_new_with_cap(size_t cap) {
+HArena harena_new_with_cap(usize cap) {
 	return (HArena){
 		.sarenas = {{0}},
 		.cap = cap,
@@ -43,12 +43,12 @@ HArena harena_new() {
 	return harena_new_with_cap(1024);
 }
 
-void* harena_alloc(HArena* arena, size_t size) {
+void* harena_alloc(HArena* arena, usize size) {
 	if (arena->sarenas_used == 0) {
 		arena->sarenas[0] = hstaticarena_new(arena->cap * (1 << arena->sarenas_used));
 		arena->sarenas_used++;
 	}
-	for (size_t i = arena->sarenas_used-1; i < ARENA_AMOUNT; i++) {
+	for (usize i = arena->sarenas_used-1; i < ARENA_AMOUNT; i++) {
 		void* ptr = hstaticarena_alloc(&arena->sarenas[i], size);
 		if (ptr != NULL) {
 			return ptr;
@@ -62,7 +62,7 @@ void* harena_alloc(HArena* arena, size_t size) {
 }
 
 void harena_free(HArena* arena) {
-	for (size_t i = 0; i < arena->sarenas_used; i++) {
+	for (usize i = 0; i < arena->sarenas_used; i++) {
 		hstaticarena_free(&arena->sarenas[i]);
 	}
 }
