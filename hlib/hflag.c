@@ -1,4 +1,5 @@
 #include "core.h"
+#include "hstring.h"
 #include <stdbool.h>
 #include <assert.h>
 #include <stdio.h>
@@ -13,16 +14,23 @@ typedef enum HFlagType {
 	HFLAGTYPE_STRING
 } HFlagType;
 
+typedef union HFlagValue {
+	i64 i;
+	f64 f;
+	str s;
+	bool b;
+} HFlagValue;
+
+
 // TODO: This assumes that the pointer size is <= 64 bit
 typedef struct HFlag {
 	char      short_name;
 	char*     long_name;
 	char*     description;
 	HFlagType type;
-	u64       default_value;
-	u64       value;
+	HFlagValue value;
+	HFlagValue default_value;
 } HFlag;
-
 
 #define FLAGS_CAP 128
 HFlag flags[FLAGS_CAP] = {
@@ -31,8 +39,8 @@ HFlag flags[FLAGS_CAP] = {
 		.long_name = "help",
 		.description = "Print this help message and exit.",
 		.type = HFLAGTYPE_BOOL,
-		.default_value = 0,
-		.value = 0
+		.value = {.b = false},
+		.default_value = {.b = false},
 	}
 };
 usize flags_len = 1;
@@ -40,6 +48,12 @@ usize flags_len = 1;
 #define EXTRA_ARGS_CAP 128
 char*  extra_args[EXTRA_ARGS_CAP];
 usize extra_args_len = 0;
+
+char* help_intro = NULL;
+
+void hflag_set_help_intro(char* intro) {
+	help_intro = intro;
+}
 
 i64* hflag_int(char short_name, char* long_name, char* description, i64 default_value) {
 	assert(flags_len < FLAGS_CAP);
@@ -49,14 +63,14 @@ i64* hflag_int(char short_name, char* long_name, char* description, i64 default_
 		.long_name = long_name,
 		.description = description,
 		.type = HFLAGTYPE_INT,
-		.default_value = *(u64*)&default_value,
-		.value = *(u64*)&default_value,
+		.default_value = {.i = default_value},
+		.value = {.i = default_value},
 	};
 	flags_len++;
-	return (i64*)&flags[flags_len-1].value;
+	return &flags[flags_len-1].value.i;
 }
 
-char** hflag_str(char short_name, char* long_name, char* description, char* default_value) {
+str* hflag_str(char short_name, char* long_name, char* description, str default_value) {
 	assert(flags_len < FLAGS_CAP);
 	nullpanic(long_name);
 	flags[flags_len] = (HFlag){
@@ -64,11 +78,11 @@ char** hflag_str(char short_name, char* long_name, char* description, char* defa
 		.long_name = long_name,
 		.description = description,
 		.type = HFLAGTYPE_STRING,
-		.default_value = *(u64*)&default_value,
-		.value = *(u64*)&default_value,
+		.default_value = {.s = default_value},
+		.value = {.s = default_value},
 	};
 	flags_len++;
-	return (char**)&flags[flags_len-1].value;
+	return &flags[flags_len-1].value.s;
 }
 
 f64* hflag_float(char short_name, char* long_name, char* description, f64 default_value) {
@@ -79,11 +93,11 @@ f64* hflag_float(char short_name, char* long_name, char* description, f64 defaul
 		.long_name = long_name,
 		.description = description,
 		.type = HFLAGTYPE_FLOAT,
-		.default_value = *(u64*)&default_value,
-		.value = *(u64*)&default_value,
+		.default_value = {.f = default_value},
+		.value = {.f = default_value},
 	};
 	flags_len++;
-	return (f64*)&flags[flags_len-1].value;
+	return &flags[flags_len-1].value.f;
 }
 
 bool* hflag_bool(char short_name, char* long_name, char* description) {
@@ -94,27 +108,27 @@ bool* hflag_bool(char short_name, char* long_name, char* description) {
 		.long_name = long_name,
 		.description = description,
 		.type = HFLAGTYPE_BOOL,
-		.default_value = (u64)false,
-		.value = (u64)false,
+		.default_value = {.b = false},
+		.value = {.b = false},
 	};
 	flags_len++;
-	return (bool*)&flags[flags_len-1].value;
+	return &flags[flags_len-1].value.b;
 }
 
 // internal
-u64 hflag_parse_value(HFlagType type, char* value) {
+HFlagValue hflag_parse_value(HFlagType type, char* value) {
 	nullpanic(value);
 	switch(type) {
 		case HFLAGTYPE_BOOL:
 			unreachable(); // Flags do not need a value, they are set to true with just -f, not -f true|false
-			return 0;
+			return (HFlagValue){0};
 		case HFLAGTYPE_INT: {
 			char* endptr;
 			i64 result = strtoll(value, &endptr, 10);
 			if (*endptr != '\0') {
 				panicf("Invalid integer value: %s", value);
 			}
-			return *(u64*)&result;
+			return (HFlagValue){.i = result};
 		}
 		case HFLAGTYPE_FLOAT: {
 			char* endptr;
@@ -122,18 +136,22 @@ u64 hflag_parse_value(HFlagType type, char* value) {
 			if (*endptr != '\0') {
 				panicf("Invalid float value: %s", value);
 			}
-			return *(u64*)&result;
+			return (HFlagValue){.f = result};
 		}
 		case HFLAGTYPE_STRING: {
-			return *(u64*)&value;
+			return (HFlagValue){.s = str_from_cstr(value)};
 		}
 	}
 	unreachable();
-	return 0;
+	return (HFlagValue){0};
 }
 
 void print_help(char* program_name) {
-	fprintf(stderr, "Usage: %s [options]\n", program_name);
+	if (help_intro) {
+		fprintf(stderr, "%s", help_intro);
+	} else {
+		fprintf(stderr, "Usage: %s [options]\n", program_name);
+	}
 	for (usize i = 0; i < flags_len; i++) {
 		HFlag flag = flags[i];
 		if(flag.short_name) {
@@ -149,13 +167,13 @@ void print_help(char* program_name) {
 				fprintf(stderr, "[bool, default: false]\n");
 				break;
 			case HFLAGTYPE_INT:
-				fprintf(stderr, "[int, default: %li]\n", *(i64*)&flag.default_value);
+				fprintf(stderr, "[int, default: %li]\n", flag.default_value.i);
 				break;
 			case HFLAGTYPE_STRING:
-				fprintf(stderr, "[string, default: %s]\n", *(char**)&flag.default_value);
+				fprintf(stderr, "[string, default: %.*s]\n", (int)flag.default_value.s.len, flag.default_value.s.data);
 				break;
 			case HFLAGTYPE_FLOAT:
-				fprintf(stderr, "[float, default: %lf]\n", *(f64*)&flag.default_value);
+				fprintf(stderr, "[float, default: %lf]\n", flag.default_value.f);
 				break;
 		}
 	}
@@ -173,7 +191,7 @@ void hflag_parse(int* argc_pointer, char*** argv_pointer) {
 		char* arg = argv[0];
 		nullpanic(arg);
 
-		if (arg[0] == '-' && arg[1] == '-' && arg[2] == '\0') { // stop parsing, interpret literally
+		if (arg[0] == '-' && arg[1] == '-' && arg[2] == '\0') { // "--", stop parsing, interpret literally
 			argv++; argc--;
 			while(argc > 0) {
 				assert(extra_args_len < EXTRA_ARGS_CAP);
@@ -195,13 +213,12 @@ void hflag_parse(int* argc_pointer, char*** argv_pointer) {
 
 			if (flag == -1) panicf("Unknown flag '%c'", name);
 			if (flags[flag].type == HFLAGTYPE_BOOL) {
-				flags[flag].value = (u64)true;
+				flags[flag].value.b = true;
 			}
 			else {
 				argv++; argc--;
 				if (argc == 0) panicf("Flag '%c' requires an argument", name);
-				i64 value = hflag_parse_value(flags[flag].type, argv[0]);
-				flags[flag].value = *(u64*)&value;
+				flags[flag].value = hflag_parse_value(flags[flag].type, argv[0]);
 			}
 		}
 		else if (arg[0] == '-' && arg[1] == '-') { // long name
@@ -217,13 +234,12 @@ void hflag_parse(int* argc_pointer, char*** argv_pointer) {
 
 			if (flag == -1) panicf("Unknown flag '%s'", name);
 			if (flags[flag].type == HFLAGTYPE_BOOL) {
-				flags[flag].value = (u64)true;
+				flags[flag].value.b = true;
 			}
 			else {
 				argv++; argc--;
 				if (argc == 0) panicf("Flag '%s' requires an argument", name);
-				i64 value = hflag_parse_value(flags[flag].type, argv[0]);
-				flags[flag].value = *(u64*)&value;
+				flags[flag].value = hflag_parse_value(flags[flag].type, argv[0]);
 			}
 		}
 		else { // Extra argument, not a flag
@@ -237,7 +253,7 @@ void hflag_parse(int* argc_pointer, char*** argv_pointer) {
 	*argv_pointer = extra_args;
 	*argc_pointer = extra_args_len;
 
-	if (flags[0].value == 1) { // Help flag activated
+	if (flags[0].value.b == true) { // Help flag activated
 		print_help(program_name);
 		exit(0);
 	}

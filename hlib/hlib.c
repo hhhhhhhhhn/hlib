@@ -5,3 +5,4 @@
 #include "harena.c"
 #include "hsort.c"
 #include "hflag.c"
+#include "hfs.c"

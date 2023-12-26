@@ -5,47 +5,49 @@
 #include "core.h"
 
 // Represents immutable view into a string, does not allocate
-typedef struct HStringView {
+typedef struct str {
 	char* data;
 	usize len;
-} HStringView;
+} str;
 
-typedef struct HStringBuilder {
+typedef struct strb {
 	char* data;
 	usize len;
 	usize cap;
-} HStringBuilder;
+} strb;
 
 typedef struct {
-	HStringBuilder builder;
+	strb builder;
 	bool ok;
-} HStringBuilderResult;
+} strbResult;
 
-#define HSTRV(str) ((HStringView) { .data = (str), .len = sizeof(str) - 1 })
+#define STR(string) ((str) { .data = (string), .len = sizeof(string) - 1 })
 
-HStringView hstring_view_new(char* data, usize len);
-HStringView hstring_view_from_builder(HStringBuilder* builder);
-HStringView hstring_view_slice(HStringView view, usize start, usize end);
-void hstring_view_consume_chars(HStringView* view, usize count);
-HStringView hstring_view_trim_left(HStringView view);
-HStringView hstring_view_trim_right(HStringView view);
-HStringView hstring_view_trim(HStringView view);
-HStringView hstring_view_split_char(HStringView* view, char delim);
-HStringView hstring_view_split_while_predicate(HStringView* view, bool(*pred)(char));
-bool hstring_view_eq(HStringView a, HStringView b);
-bool hstring_view_write_to_file(HStringView* view, FILE* file);
-bool hstring_view_write_to_filepath(HStringView* view, char* path);
+str str_new(char* data, usize len);
+str str_from_strb(strb* builder);
+char* str_to_cstr(str view); // Resulting string must be freed
+str str_from_cstr(char* cstr);
+str str_slice(str view, usize start, usize end);
+void str_consume_chars(str* view, usize count);
+str str_trim_left(str view);
+str str_trim_right(str view);
+str str_trim(str view);
+str str_split_char(str* view, char delim);
+str str_split_while_predicate(str* view, bool(*pred)(char));
+bool str_eq(str a, str b);
+bool str_write_to_file(str* view, FILE* file);
+bool str_write_to_filepath(str* view, str path);
 
 bool hstring_is_whitespace(char c);
 
-HStringBuilder hstring_builder_new();
-HStringBuilder hstring_builder_from_view(HStringView view); // Clones the data
-HStringBuilderResult hstring_builder_from_filepath(char* path);
-HStringBuilderResult hstring_builder_from_file(FILE* file);
-void hstring_builder_append_view(HStringBuilder* builder, HStringView view); // Clones the data
-bool hstring_builder_append_file(HStringBuilder* builder, FILE* file); // Returns true on success
-bool hstring_builder_append_filepath(HStringBuilder* builder, char* path);
-void hstring_builder_push_char(HStringBuilder* builder, char c);
-void hstring_builder_free(HStringBuilder* builder);
+strb strb_new();
+strb strb_from_str(str view); // Clones the data
+strbResult strb_from_filepath(str path);
+strbResult strb_from_file(FILE* file);
+void strb_append_view(strb* builder, str view); // Clones the data
+bool strb_append_file(strb* builder, FILE* file); // Returns true on success
+bool strb_append_filepath(strb* builder, str path);
+void strb_push_char(strb* builder, char c);
+void strb_free(strb* builder);
 
 #endif

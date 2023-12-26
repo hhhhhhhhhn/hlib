@@ -1,105 +1,118 @@
 #include "core.h"
+#include "hfs.h"
 #include <stdbool.h>
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
 #include "hstring.h"
 
-HStringView hstring_view_new(char* data, usize len) {
-	return (HStringView) {
+str str_new(char* data, usize len) {
+	return (str) {
 		.data = data,
 		.len = len
 	};
 }
 
-HStringView hstring_view_from_builder(HStringBuilder* builder) {
-	return (HStringView) {
+str str_from_strb(strb* builder) {
+	return (str) {
 		.data = builder->data,
 		.len = builder->len
 	};
 }
 
-HStringView hstring_view_slice(HStringView view, usize start, usize end) {
-	return (HStringView) {
+str str_from_cstr(char* str) {
+	usize len = strlen(str);
+	return str_new(str, len);
+}
+
+char* str_to_cstr(str view) {
+	char* result = malloc(view.len + 1);
+	memcpy(result, view.data, view.len);
+	result[view.len] = 0;
+	return result;
+}
+
+str str_slice(str view, usize start, usize end) {
+	return (str) {
 		.data = view.data + start,
 		.len = end - start
 	};
 }
 
-void hstring_view_consume_chars(HStringView* view, usize count) {
+void str_consume_chars(str* view, usize count) {
 	view->data += count;
 	view->len -= count;
 }
 
-HStringView hstring_view_split_char(HStringView* view, char delim) {
+str str_split_char(str* view, char delim) {
 	for(usize i = 0; i < view->len; i++) {
 		if (view->data[i] == delim) {
-			HStringView result = hstring_view_slice(*view, 0, i);
-			hstring_view_consume_chars(view, i+1);
+			str result = str_slice(*view, 0, i);
+			str_consume_chars(view, i+1);
 			return result;
 		}
 	}
 
-	HStringView result = hstring_view_slice(*view, 0, view->len);
-	hstring_view_consume_chars(view, view->len);
+	str result = str_slice(*view, 0, view->len);
+	str_consume_chars(view, view->len);
 	return result;
 }
 
-HStringView hstring_view_split_while_predicate(HStringView* view, bool(*pred)(char)) {
+str str_split_while_predicate(str* view, bool(*pred)(char)) {
 	usize i = 0;
 	while (!pred(view->data[i]) && i < view->len) {
 		i++;
 	}
-	HStringView result = hstring_view_slice(*view, 0, i);
+	str result = str_slice(*view, 0, i);
 
 	while (pred(view->data[i]) && i < view->len) {
 		i++;
 	}
-	hstring_view_consume_chars(view, i);
+	str_consume_chars(view, i);
 
 	return result;
 }
 
-HStringView hstring_view_trim_left(HStringView view) {
+str str_trim_left(str view) {
 	for(usize i = 0; i < view.len; i++) {
 		if (!hstring_is_whitespace(view.data[i])) {
-			return hstring_view_slice(view, i, view.len);
+			return str_slice(view, i, view.len);
 		}
 	}
-	return hstring_view_slice(view, view.len, view.len);
+	return str_slice(view, view.len, view.len);
 }
 
-HStringView hstring_view_trim_right(HStringView view) {
+str str_trim_right(str view) {
 	for(isize i = view.len-1; i >= 0; i--) {
 		if (!hstring_is_whitespace(view.data[i])) {
-			return hstring_view_slice(view, 0, i+1);
+			return str_slice(view, 0, i+1);
 		}
 	}
-	return hstring_view_slice(view, 0, 0);
+	return str_slice(view, 0, 0);
 }
 
-HStringView hstring_view_trim(HStringView view) {
-	return hstring_view_trim_right(hstring_view_trim_left(view));
+str str_trim(str view) {
+	return str_trim_right(str_trim_left(view));
 }
 
-bool hstring_view_eq(HStringView a, HStringView b) {
+bool str_eq(str a, str b) {
 	if (a.len != b.len) {
 		return false;
 	}
 	return memcmp(a.data, b.data, a.len) == 0;
 }
 
-bool hstring_view_write_to_file(HStringView* view, FILE* file) {
+bool str_write_to_file(str* view, FILE* file) {
 	int written = fprintf(file, "%.*s", (int)view->len, view->data);;
 	return (usize)written == view->len;
 }
 
-bool hstring_view_write_to_filepath(HStringView* view, char* path) {
-	FILE* file = fopen(path, "w");
+bool str_write_to_filepath(str* view, str path) {
+	FILE* file = hfs_open_file(path, false, true);
 	if (file == NULL) {
 		return false;
 	}
-	bool status = hstring_view_write_to_file(view, file);
+	bool status = str_write_to_file(view, file);
 	bool close_status = fclose(file);
 	assert(close_status);
 	return status;
@@ -110,12 +123,11 @@ bool hstring_is_whitespace(char c) {
 }
 
 /////////////////////// BUILDER /////////////////////////////
-
-HStringBuilder hstring_builder_new() {
+strb strb_new() {
 	char* data = malloc(32);
 	nullpanic(data);
 
-	return (HStringBuilder) {
+	return (strb) {
 		.data = data,
 		.len = 0,
 		.cap = 32
@@ -123,24 +135,24 @@ HStringBuilder hstring_builder_new() {
 }
 
 // internal
-void hstring_builder_resize(HStringBuilder* builder, usize new_cap) {
+void strb_resize(strb* builder, usize new_cap) {
 	builder->cap = new_cap;
 	char* new_data = realloc(builder->data, new_cap);
 	nullpanic(new_data);
 	builder->data = new_data;
 }
 
-void hstring_builder_append_view(HStringBuilder* builder, HStringView view) {
+void strb_append_view(strb* builder, str view) {
 	while (builder->len + view.len >= builder->cap) {
-		hstring_builder_resize(builder, builder->cap*2); // TODO: Calculate how many times to resize beforehand
+		strb_resize(builder, builder->cap*2); // TODO: Calculate how many times to resize beforehand
 	}
 	memcpy(builder->data + builder->len, view.data, view.len);
 }
 
-bool hstring_builder_append_file(HStringBuilder* builder, FILE* file) {
+bool strb_append_file(strb* builder, FILE* file) {
 	while (true) {
 		if (builder->len >= builder->cap) {
-			hstring_builder_resize(builder, builder->cap*2);
+			strb_resize(builder, builder->cap*2);
 		}
 		usize bytes_read = fread(builder->data + builder->len, 1, builder->cap - builder->len, file);
 		if (ferror(file)) {
@@ -155,12 +167,12 @@ bool hstring_builder_append_file(HStringBuilder* builder, FILE* file) {
 	return true;
 }
 
-bool hstring_builder_append_filepath(HStringBuilder* builder, char* path) {
-	FILE* file = fopen(path, "r");
+bool strb_append_filepath(strb* builder, str path) {
+	FILE* file = hfs_open_file(path, true, false);
 	if (file == NULL) {
 		return false;
 	}
-	if (!hstring_builder_append_file(builder, file)) {
+	if (!strb_append_file(builder, file)) {
 		fclose(file);
 		return false;
 	}
@@ -170,42 +182,42 @@ bool hstring_builder_append_filepath(HStringBuilder* builder, char* path) {
 	return true;
 }
 
-HStringBuilder hstring_builder_from_view(HStringView view) {
-	HStringBuilder builder = hstring_builder_new();
-	hstring_builder_append_view(&builder, view);
+strb strb_from_str(str view) {
+	strb builder = strb_new();
+	strb_append_view(&builder, view);
 	return builder;
 }
 
-HStringBuilderResult hstring_builder_from_file(FILE* file) {
-	HStringBuilderResult result = {0};
-	result.builder = hstring_builder_new();
-	if(!hstring_builder_append_file(&result.builder, file)) {
-		hstring_builder_free(&result.builder);
+strbResult strb_from_file(FILE* file) {
+	strbResult result = {0};
+	result.builder = strb_new();
+	if(!strb_append_file(&result.builder, file)) {
+		strb_free(&result.builder);
 		return result;
 	}
 	result.ok = 1;
 	return result;
 }
 
-HStringBuilderResult hstring_builder_from_filepath(char* path) {
-	HStringBuilderResult result = {0};
-	result.builder = hstring_builder_new();
-	if(!hstring_builder_append_filepath(&result.builder, path)) {
-		hstring_builder_free(&result.builder);
+strbResult strb_from_filepath(str path) {
+	strbResult result = {0};
+	result.builder = strb_new();
+	if(!strb_append_filepath(&result.builder, path)) {
+		strb_free(&result.builder);
 		return result;
 	}
 	result.ok = 1;
 	return result;
 }
 
-void hstring_builder_push_char(HStringBuilder* builder, char c) {
+void strb_push_char(strb* builder, char c) {
 	if (builder->len >= builder->cap) {
-		hstring_builder_resize(builder, builder->cap*2);
+		strb_resize(builder, builder->cap*2);
 	}
 	builder->data[builder->len] = c;
 	builder->len++;
 }
 
-void hstring_builder_free(HStringBuilder* builder) {
+void strb_free(strb* builder) {
 	free(builder->data);
 }

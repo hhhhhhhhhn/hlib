@@ -21,6 +21,8 @@ typedef intptr_t isize;
 typedef float f32;
 typedef double f64;
 
+// char and bool are also used in hlib
+
 void* malloc_print(usize size, const char* file, int line);
 void free_print(void* ptr, const char* file, int line);
 void* realloc_print(void* ptr, usize size, const char* file, int line);
@@ -39,5 +41,19 @@ void* realloc_print(void* ptr, usize size, const char* file, int line);
 
 #define ARCH_BYTES (sizeof(usize))
 #define ARCH_BITS (sizeof(usize)*8)
+
+#define PLATFORM_LINUX   0
+#define PLATFORM_MAC     1
+#define PLATFORM_WINDOWS 2
+
+#if defined(WIN32)
+	#define PLATFORM PLATFORM_WINDOWS
+#elif defined(__APPLE__)
+	#define PLATFORM PLATFORM_MAC
+#elif defined(__linux__)
+	#define PLATFORM PLATFORM_LINUX
+#else
+	#error Unsupported platform, please update "hlib/core.h"
+#endif
 
 #endif
