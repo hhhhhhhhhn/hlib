@@ -22,7 +22,7 @@ These are some principles for `hlib`:
   Generics should done with `void*`.
 
 ## Types
-The library includes different categories of files.
+The library includes different categories of types:
 - Basic types: Done in Rust fashion (`i32`, `f64`, etc),
   plus `str` for a string view (does not own the memory, immutable)
   and `strb` for a string builder (does own the memory, must be freed).
