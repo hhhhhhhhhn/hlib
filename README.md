@@ -31,7 +31,7 @@ The library includes different categories of files.
 - Normal structs, unions and enums: Written in Pascal Case, e.g. `HVec`.
   They all start with an `H` prefix.
 - Result types, of the form `[TYPE]Result` (e.g. `strbResult`),
-  which are a struct the value and an `ok` boolean.
+  which are structs with the value and an `ok` boolean.
   See `strb_from_file` in `hstring.c` for an example.
 
 
