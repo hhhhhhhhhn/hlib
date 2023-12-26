@@ -1,8 +1,8 @@
 # Todo
-- File making clear vocabulary and naming conventions
-- A string hasher for the hashmap
+- A small string type (?)
 - Better memory debugging (dump allocations)
 - File handling, ls and find equivalents
+- Dequeue, and similar
 
 ## Done
 - Arena allocator
@@ -13,3 +13,4 @@
 - A way to write information into the --help menu
 - Make strings more convenient
   - Removing all char*
+- File making clear vocabulary and naming conventions
