@@ -6,6 +6,7 @@
 int main() {
 	strb builder = strb_new();
 
+	printf("Reading standard input...\n");
 	strb_append_file(&builder, stdin);
 
 	str view = str_from_strb(&builder);
@@ -45,4 +46,15 @@ int main() {
 	}
 
 	strb_free(&builder);
+
+	str text = STR("This text -- will be divided -- by two dashes (-), -- and trimmed -- without issue");
+
+	while (text.len) {
+		str word = str_split_str(&text, STR("--"));
+		word = str_trim(word);
+		printf("Split by '--': %.*s\n", (int)word.len, word.data);
+	}
+
+	assert(str_eq(str_remove_start(STR("Hello"), STR("Hell")), STR("o")));
+	assert(str_eq(str_remove_end(STR("Hello"), STR("ello")), STR("H")));
 }

@@ -1,8 +1,7 @@
-#include "core.h"
 #include <stdio.h>
 #include <stdlib.h>
 
-void* malloc_print(usize size, const char* file, int line) {
+void* malloc_print(size_t size, const char* file, int line) {
 	void* ptr = malloc(size);
 	if (!ptr) {
 		fprintf(stderr, "[mem]: %s:%d failed to allocate %zu bytes\n", file, line, size);
@@ -16,7 +15,7 @@ void free_print(void* ptr, const char* file, int line) {
 	free(ptr);
 }
 
-void* realloc_print(void* ptr, usize size, const char* file, int line) {
+void* realloc_print(void* ptr, size_t size, const char* file, int line) {
 	fprintf(stderr, "[mem]: %s:%d reallocated %zu bytes from %p", file, line, size, ptr);
 	void* new_ptr = realloc(ptr, size);
 	if (!new_ptr) {

@@ -2,6 +2,7 @@
 #include <string.h>
 #include "hhashmap.h"
 #include "core.h"
+#include <assert.h>
 
 HHashMap hhashmap_new_with_cap(usize key_size, usize value_size, HKeyType type, usize cap) {
 	void* keys = malloc(cap * key_size);
@@ -83,7 +84,7 @@ void hhashmap_set(HHashMap* map, void* key, void* value) {
 			map->len++;
 			return;
 		}
-		index++;
+		index = (index + 1) % map->cap;
 	}
 	unreachable();
 }
@@ -105,7 +106,7 @@ int hhashmap_get_index(HHashMap* map, void* key) {
 		if (map->type.eq(key, (char*)map->keys + index*map->key_size, map->key_size)) {
 			return index;
 		}
-		index++;
+		index = (index + 1) % map->cap;
 	}
 	return -1;
 }

@@ -58,3 +58,9 @@ Names are predictable, and follow a standard vocabulary:
   The latter definition is different for the amount of elements a collection could hold.
   For example, if a hashmap allocates 100 elements, its `cap`acity is 100,
   even if it would reallocate once it passes 75 elements.
+
+## Using this library
+For now, the recommended usage of this library is copying the `hlib` directory
+somewhere in the project.
+The `hlib.c` file is the only file that needs compilation, as it includes the
+rest of the library.

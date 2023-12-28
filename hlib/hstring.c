@@ -27,9 +27,20 @@ str str_from_cstr(char* str) {
 
 char* str_to_cstr(str view) {
 	char* result = malloc(view.len + 1);
+	nullpanic(result);
 	memcpy(result, view.data, view.len);
-	result[view.len] = 0;
+	result[view.len] = '\0';
 	return result;
+}
+
+#define TEMP_CSTR_CAP 1024
+char temp_cstr[TEMP_CSTR_CAP];
+
+char* str_to_temp_cstr(str view) {
+	assert(view.len+1 < TEMP_CSTR_CAP);
+	memcpy(temp_cstr, view.data, view.len);
+	temp_cstr[view.len] = '\0';
+	return temp_cstr;
 }
 
 str str_slice(str view, usize start, usize end) {
@@ -58,6 +69,26 @@ str str_split_char(str* view, char delim) {
 	return result;
 }
 
+str str_split_str(str* view, str delim) {
+	usize chars_matched = 0;
+	for(usize i = 0; i < view->len; i++) {
+		while (chars_matched < delim.len && i+chars_matched < view->len
+			&& view->data[i+chars_matched] == delim.data[chars_matched]) {
+				chars_matched++;
+				if(chars_matched == delim.len) {
+					str result = str_slice(*view, 0, i);
+					str_consume_chars(view, i+chars_matched);
+					return result;
+				}
+		}
+		chars_matched = 0;
+	}
+
+	str result = str_slice(*view, 0, view->len);
+	str_consume_chars(view, view->len);
+	return result;
+}
+
 str str_split_while_predicate(str* view, bool(*pred)(char)) {
 	usize i = 0;
 	while (!pred(view->data[i]) && i < view->len) {
@@ -71,6 +102,34 @@ str str_split_while_predicate(str* view, bool(*pred)(char)) {
 	str_consume_chars(view, i);
 
 	return result;
+}
+
+bool str_starts_with(str view, str prefix) {
+	if (prefix.len > view.len) {
+		return false;
+	}
+	return memcmp(view.data, prefix.data, prefix.len) == 0;
+}
+
+bool str_ends_with(str view, str suffix) {
+	if (suffix.len > view.len) {
+		return false;
+	}
+	return memcmp(view.data + view.len - suffix.len, suffix.data, suffix.len) == 0;
+}
+
+str str_remove_start(str view, str prefix) {
+	if (str_starts_with(view, prefix)) {
+		return str_slice(view, prefix.len, view.len);
+	}
+	return view;
+}
+
+str str_remove_end(str view, str suffix) {
+	if (str_ends_with(view, suffix)) {
+		return str_slice(view, 0, view.len - suffix.len);
+	}
+	return view;
 }
 
 str str_trim_left(str view) {

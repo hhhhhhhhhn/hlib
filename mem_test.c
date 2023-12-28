@@ -12,7 +12,7 @@ int main() {
 	for (int i = 0; i < 1024; i++) {
 		numbers[i] = i;
 	}
-	realloc(numbers, 1024*sizeof(int));
+	numbers = realloc(numbers, 1024*sizeof(int));
 	for (int i = 0; i < 1024; i++) {
 		if (i % 100 == 0) {
 			printf("%d\n", numbers[i]);

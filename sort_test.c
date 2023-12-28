@@ -7,11 +7,11 @@ int cmp_int(void* a, void* b) {
 
 #define NUMS 64
 int main() {
-	int numbers[NUMS];
+	i32 numbers[NUMS];
 
-	int seed = 123823;
+	i32 seed = 123823;
 	for (size_t i = 0; i < NUMS; i++) {
-		seed = seed*38212642837 - i;
+		seed = (u32)seed*(u32)38212642837 - i;
 		numbers[i] = seed % (NUMS*2);
 	}
 

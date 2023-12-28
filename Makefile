@@ -1,7 +1,7 @@
-CFLAGS = -Wall -Werror -Wextra -Wpedantic -std=c99 -g
+CFLAGS = -Wall -Werror -Wextra -Wpedantic -std=c99 -Wnull-dereference -g
 
 ifdef debug
-	CFLAGS += -DHLIB_DEBUG
+	CFLAGS += -DHLIB_DEBUG -fsanitize=undefined -fsanitize=address -fsanitize=leak
 endif
 
 all: hlib.o tests
@@ -12,7 +12,7 @@ hlib.o: $(wildcard hlib/*.c)
 %_test: %_test.c hlib.o
 	cc $(CFLAGS) -o $@ $< hlib.o
 
-tests: mem_test vec_test string_test hashmap_test arena_test sort_test flag_test
+tests: mem_test vec_test string_test hashmap_test arena_test sort_test flag_test fs_test
 
 clean:
 	rm -f *.o *_test

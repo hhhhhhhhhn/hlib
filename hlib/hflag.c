@@ -22,7 +22,6 @@ typedef union HFlagValue {
 } HFlagValue;
 
 
-// TODO: This assumes that the pointer size is <= 64 bit
 typedef struct HFlag {
 	char      short_name;
 	char*     long_name;

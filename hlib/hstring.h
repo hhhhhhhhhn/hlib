@@ -21,18 +21,24 @@ typedef struct {
 	bool ok;
 } strbResult;
 
-#define STR(string) ((str) { .data = (string), .len = sizeof(string) - 1 })
+#define STR(string) ((str) { .data = (string), .len = sizeof(string) - 1 }) // For static strings
 
 str str_new(char* data, usize len);
 str str_from_strb(strb* builder);
 char* str_to_cstr(str view); // Resulting string must be freed
+char* str_to_temp_cstr(str view); // Must be used immediately, as the next call will overwrite it. Must not be freed.
 str str_from_cstr(char* cstr);
 str str_slice(str view, usize start, usize end);
 void str_consume_chars(str* view, usize count);
 str str_trim_left(str view);
 str str_trim_right(str view);
+bool str_starts_with(str view, str prefix);
+bool str_ends_with(str view, str prefix);
+str str_remove_start(str view, str prefix);
+str str_remove_end(str view, str prefix);
 str str_trim(str view);
 str str_split_char(str* view, char delim);
+str str_split_str(str* view, str delim);
 str str_split_while_predicate(str* view, bool(*pred)(char));
 bool str_eq(str a, str b);
 bool str_write_to_file(str* view, FILE* file);

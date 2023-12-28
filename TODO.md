@@ -1,8 +1,16 @@
 # Todo
 - A small string type (?)
 - Better memory debugging (dump allocations)
-- File handling, ls and find equivalents
 - Dequeue, and similar
+- make install
+- Clarify error handling
+- Threads
+- Last modification timestamp for `HFSDirEntry`
+  - Needs `htime`
+- Parsing numbers
+  - JSON (?)
+- Spawning child processes
+- `str_{starts,ends}_with`, `str_remove_{start,end}`
 
 ## Done
 - Arena allocator
@@ -14,3 +22,6 @@
 - Make strings more convenient
   - Removing all char*
 - File making clear vocabulary and naming conventions
+- Temporal `str_to_cstr` using a reusable stack allocated string
+- File handling, ls and find equivalents
+- `str_split_by_str`
