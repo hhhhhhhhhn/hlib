@@ -1,6 +1,5 @@
 # Todo
 - A small string type (?)
-- Better memory debugging (dump allocations)
 - Dequeue, and similar
 - make install
 - Clarify error handling
@@ -10,7 +9,7 @@
 - Parsing numbers
   - JSON (?)
 - Spawning child processes
-- `str_{starts,ends}_with`, `str_remove_{start,end}`
+- `STR` for arrays
 
 ## Done
 - Arena allocator
@@ -25,3 +24,6 @@
 - Temporal `str_to_cstr` using a reusable stack allocated string
 - File handling, ls and find equivalents
 - `str_split_by_str`
+- `str_{starts,ends}_with`, `str_remove_{start,end}`
+- Better memory debugging (dump allocations)
+  - `-fsanitize`

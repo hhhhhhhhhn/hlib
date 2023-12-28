@@ -1,7 +1,7 @@
-#include <assert.h>
 #include <stdio.h>
 #include <string.h>
 #include "hlib/hhashmap.h"
+#include "hlib/core.h"
 
 typedef char key[64];
 typedef char value[256];

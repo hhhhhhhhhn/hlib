@@ -1,7 +1,6 @@
 #include "hlib/core.h"
 #include "hlib/hfs.h"
 #include "hlib/hstring.h"
-#include <assert.h>
 
 i32 main() {
 	FILE* file = hfs_open_file(STR("fs_test.c"), true, false);

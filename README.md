@@ -7,7 +7,7 @@ These are some principles for `hlib`:
 - Do not follow all traditional C conventions,
   as some of them are outdated and cause a lot of pain.
   For example, instead of `char*`, `hlib` has a sized string type `str`.
-  One of the roles of `hlib` is to as a translation layer on top
+  One of the roles of `hlib` is to act as a translation layer on top
   of the standard C library for the new conventions.
 - Be as simple as you can.
 - Target C99, as it is the oldest and simplest C standard that has everything I
@@ -34,20 +34,18 @@ The library includes different categories of types:
   which are structs with the value and an `ok` boolean.
   See `strb_from_file` in `hstring.c` for an example.
 
-
 ## Naming conventions for functions and variables
 Function names are verbose, written with snake_case,
-and start with either the structure of the type or the module they are part of.
+and start with either the type the act on or the module they are part of.
 For example:
 
-- `str_new`, found in `hstring.h` creates a new `str`
-- `hstring`, also found in `hstring.h` frees the `str`
+- `strb_new`, found in `hstring.h` creates a new `strb`
+- `hstring_is_whitespace`, also found in `hstring.h`, checks if a `char` is
+  whitespace.
 - `hvec_push`, found in `hvec.h` pushes an element to an `HVec`
 
 Names are predictable, and follow a standard vocabulary:
 - `TYPE_new` and `TYPE_free` are used for constructors and destructors.
-  Note that "free" applies not only to memory, but also, for example, for
-  closing files.
 - `TYPE_from_TYPE` for creating a type from another type, for example, `str_from_strb`.
   `TYPE_to_TYPE` is also possible, but the former generally makes more sense.
 - `file` refers to a `FILE*` and `filepath` to a path to a file.
@@ -58,6 +56,7 @@ Names are predictable, and follow a standard vocabulary:
   The latter definition is different for the amount of elements a collection could hold.
   For example, if a hashmap allocates 100 elements, its `cap`acity is 100,
   even if it would reallocate once it passes 75 elements.
+- Ideally, modules have the same name as the types they provide.
 
 ## Using this library
 For now, the recommended usage of this library is copying the `hlib` directory

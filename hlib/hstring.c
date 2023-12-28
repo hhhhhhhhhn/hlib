@@ -1,7 +1,6 @@
 #include "core.h"
 #include "hfs.h"
 #include <stdbool.h>
-#include <assert.h>
 #include <stdio.h>
 #include <string.h>
 #include "hstring.h"

@@ -1,7 +1,6 @@
 #include "core.h"
 #include "harena.h"
 #include <stdlib.h>
-#include <assert.h>
 
 HStaticArena hstaticarena_new(usize cap) {
 	void* data = malloc(cap);

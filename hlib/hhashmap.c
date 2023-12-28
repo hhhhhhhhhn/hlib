@@ -2,7 +2,6 @@
 #include <string.h>
 #include "hhashmap.h"
 #include "core.h"
-#include <assert.h>
 
 HHashMap hhashmap_new_with_cap(usize key_size, usize value_size, HKeyType type, usize cap) {
 	void* keys = malloc(cap * key_size);

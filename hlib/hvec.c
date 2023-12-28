@@ -1,6 +1,5 @@
 #include <stdlib.h>
 #include <stddef.h>
-#include <assert.h>
 #include <string.h>
 #include "core.h"
 #include "hvec.h"

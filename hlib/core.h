@@ -33,11 +33,12 @@ void* realloc_print(void* ptr, usize size, const char* file, int line);
 #define realloc(ptr, size) realloc_print(ptr, size, __FILE__, __LINE__)
 #endif
 
-#define nullpanic(ptr) if (!(ptr)) {fprintf(stderr, "Unexpected null at %s:%d\n", __FILE__, __LINE__); exit(1);}
+#define nullpanic(ptr) do {if (!(ptr)) {fprintf(stderr, "Unexpected null at %s:%d\n", __FILE__, __LINE__); exit(1);}} while (0);
 #define todo() do {fprintf(stderr, "Not implemented at %s:%d\n", __FILE__, __LINE__); exit(1);} while(0);
 #define unreachable() do {fprintf(stderr, "Unreachable at %s:%d\n", __FILE__, __LINE__); exit(1);} while(0);
 #define panic(str) do {fprintf(stderr, "Panic: " str " at %s:%d\n", __FILE__, __LINE__); exit(1);} while(0);
 #define panicf(str, ...) do {fprintf(stderr, "Panic: " str " at %s:%d\n", __VA_ARGS__, __FILE__, __LINE__); exit(1);} while(0);
+#define assert(expr) do {if (!(expr)) {fprintf(stderr, "Assertion '%s' failed at %s:%d\n", #expr, __FILE__, __LINE__); exit(1);}} while (0);
 
 #define ARCH_BYTES (sizeof(usize))
 #define ARCH_BITS (sizeof(usize)*8)

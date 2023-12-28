@@ -1,7 +1,6 @@
 #include "core.h"
 #include "hstring.h"
 #include "hfs.h"
-#include <assert.h>
 #include <string.h>
 
 FILE* hfs_open_file(str path, bool read, bool writing) {
