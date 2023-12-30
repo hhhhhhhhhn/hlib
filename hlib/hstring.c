@@ -32,14 +32,12 @@ char* str_to_cstr(str view) {
 	return result;
 }
 
-#define TEMP_CSTR_CAP 1024
-char temp_cstr[TEMP_CSTR_CAP];
-
-char* str_to_temp_cstr(str view) {
-	assert(view.len+1 < TEMP_CSTR_CAP);
-	memcpy(temp_cstr, view.data, view.len);
-	temp_cstr[view.len] = '\0';
-	return temp_cstr;
+void str_to_cstr_buf(str view, char* buf, usize buf_cap) {
+	if (view.len+1 >= buf_cap) {
+		panic("Buffer too small to hold string");
+	}
+	memcpy(buf, view.data, view.len);
+	buf[view.len] = '\0';
 }
 
 str str_slice(str view, usize start, usize end) {

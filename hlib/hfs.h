@@ -1,5 +1,5 @@
-#ifndef HLIB_HFLAG_H
-#define HLIB_HFLAG_H
+#ifndef HLIB_HFS_H
+#define HLIB_HFS_H
 
 #include "core.h"
 #include "hstring.h"

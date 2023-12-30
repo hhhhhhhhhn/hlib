@@ -4,7 +4,8 @@
 #include <string.h>
 
 FILE* hfs_open_file(str path, bool read, bool writing) {
-	char* path_cstr = str_to_temp_cstr(path); // TODO: Remove allocation
+	char path_cstr[PATH_CAP];
+	str_to_cstr_buf(path, path_cstr, sizeof(path_cstr)); // TODO: Remove allocation
 	FILE* result;
 	if (read && writing) {
 		result = fopen(path_cstr, "rb+");
@@ -28,7 +29,8 @@ void hfs_close_file(FILE* file) {
 
 HFSDirResult hfs_open_dir(str path) {
 	HFSDirResult result = {0};
-	char* path_cstr = str_to_temp_cstr(path);
+	char path_cstr[PATH_CAP];
+	str_to_cstr_buf(path, path_cstr, sizeof(path_cstr)); // TODO: Remove allocation
 	result.dir.dir = opendir(path_cstr);
 
 	if (result.dir.dir == NULL) { // TODO: Write error to a variable

@@ -26,7 +26,7 @@ typedef struct {
 str str_new(char* data, usize len);
 str str_from_strb(strb* builder);
 char* str_to_cstr(str view); // Resulting string must be freed
-char* str_to_temp_cstr(str view); // Must be used immediately, as the next call will overwrite it. Must not be freed.
+void str_to_cstr_buf(str view, char* buf, usize buf_cap); // Panics if buf cannot hold view
 str str_from_cstr(char* cstr);
 str str_slice(str view, usize start, usize end);
 void str_consume_chars(str* view, usize count);

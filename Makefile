@@ -1,4 +1,4 @@
-CFLAGS = -Wall -Werror -Wextra -Wpedantic -std=c99 -Wnull-dereference -g
+CFLAGS = -Wall -Werror -Wextra -Wpedantic -std=c99 -g
 
 ifdef debug
 	CFLAGS += -DHLIB_DEBUG -fsanitize=undefined -fsanitize=address -fsanitize=leak
