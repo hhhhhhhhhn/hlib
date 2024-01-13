@@ -144,7 +144,7 @@ str str_trim_left(str view) {
 }
 
 str str_trim_right(str view) {
-	for(usize i = view.len-1; i >= 0; i--) {
+	for(isize i = view.len-1; i >= 0; i--) {
 		if (!hstring_is_whitespace(view.data[i])) {
 			return str_slice(view, 0, i+1);
 		}

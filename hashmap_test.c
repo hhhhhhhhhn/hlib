@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <string.h>
 #include "hlib/hhashmap.h"
+#include "hlib/hstring.h"
 #include "hlib/core.h"
+#include "hlib/hparse.h"
 
 typedef char key[64];
 typedef char value[256];
@@ -69,4 +71,27 @@ int main() {
 	}
 
 	hhashmap_free(&map);
+
+	map = hhashmap_new(sizeof(str), sizeof(i64), HKEYTYPE_DIRECT);
+	str str_key = STR("1");
+	i64 int_value = 1;
+	hhashmap_set(&map, &str_key, &int_value);
+
+	str_key = STR("2");
+	int_value = 2;
+	hhashmap_set(&map, &str_key, &int_value);
+
+	str_key = STR("3");
+	int_value = 3;
+	hhashmap_set(&map, &str_key, &int_value);
+
+	str* iter_key;
+	i64* iter_value;
+	index = 0;
+	while(hhashmap_next(&map, &iter_key, &iter_value, &index)) {
+		i64 actual;
+		assert(hparse_i64(*iter_key, &actual));
+
+		assert(actual == *iter_value);
+	}
 }
