@@ -1,22 +1,20 @@
 # Todo
 - A small string type (?)
 - Dequeue, and similar
-- make install
 - Clarify error handling
-- Threads
-  - Making `str_to_temp_cstr` thread safe (ring buffer?)
-    - Even better: A sized `str_to_cstr_buf(str string, char* buf, usize buf_cap)`,
-      and use that for all standard libraries (mainly `hfs.h`)
-    - Deprecate `str_to_temp_cstr`
 - Last modification timestamp for `HFSDirEntry`
   - Needs `htime`
-- Parsing numbers
-  - JSON (?)
 - Spawning child processes
 - `STR` for arrays
 - Exit handler
+- System for using with other libraries that depend on it
+    - Versioning system
+      - With macros, `#define X_VERSION 0_01_02`
+      - Checks with, `#if X_VERSION < 0_01_02 (fail)`
+        - Maybe, a `LATEST_TESTED_VERSION`, with a system for detecting untested
 
 ## Done
+- Parsing numbers
 - Arena allocator
 - Argument parsing (with shift and such)
 - Writing to file
@@ -32,6 +30,16 @@
 - `str_{starts,ends}_with`, `str_remove_{start,end}`
 - Better memory debugging (dump allocations)
   - `-fsanitize`
+- Threads
+  - Making `str_to_temp_cstr` thread safe (ring buffer?)
+    - Even better: A sized `str_to_cstr_buf(str string, char* buf, usize buf_cap)`,
+      and use that for all standard libraries (mainly `hfs.h`)
+    - Deprecate `str_to_temp_cstr`
+
+## Discarded
+- JSON (for now)
+- make install
+- Networking (just use libcurl, easy to wrap)
 
 ## Idea for Thread Local Variables
 ```c

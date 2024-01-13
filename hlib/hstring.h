@@ -22,6 +22,7 @@ typedef struct {
 } strbResult;
 
 #define STR(string) ((str) { .data = (string), .len = sizeof(string) - 1 }) // For static strings
+#define STR_ARR(string) { .data = (string), .len = sizeof(string) - 1 } // Usage for static arrays/struct
 
 str str_new(char* data, usize len);
 str str_from_strb(strb* builder);
@@ -30,6 +31,7 @@ void str_to_cstr_buf(str view, char* buf, usize buf_cap); // Panics if buf canno
 str str_from_cstr(char* cstr);
 str str_slice(str view, usize start, usize end);
 void str_consume_chars(str* view, usize count);
+void str_consume_char(str* view);
 str str_trim_left(str view);
 str str_trim_right(str view);
 bool str_starts_with(str view, str prefix);
@@ -45,6 +47,7 @@ bool str_write_to_file(str* view, FILE* file);
 bool str_write_to_filepath(str* view, str path);
 
 bool hstring_is_whitespace(char c);
+bool hstring_is_digit(char c);
 
 strb strb_new();
 strb strb_from_str(str view); // Clones the data

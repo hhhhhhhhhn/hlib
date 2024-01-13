@@ -7,22 +7,22 @@
 #include "hlib/core.h"
 #include "hlib/hvec.h"
 
-int main() {
-	HVec vec = hvec_new(sizeof(double));
+i32 main() {
+	HVec vec = hvec_new(sizeof(f64));
 
-	for (int i = 0; i < 1024; i++) {
-		double item = i;
+	for (i32 i = 0; i < 1024; i++) {
+		f64 item = i;
 		hvec_push(&vec, &item);
 	}
 
-	for (int i = 0; i < 1024; i++) {
-		double* item = hvec_at(&vec, i);
+	for (i32 i = 0; i < 1024; i++) {
+		f64* item = hvec_at(&vec, i);
 		nullpanic(item);
 		if (i % 100 == 0) {
 			printf("%f\n", *item);
 		}
 
-		assert(*item == (double)i);
+		assert(*item == (f64)i);
 	}
 
 	hvec_free(&vec);
