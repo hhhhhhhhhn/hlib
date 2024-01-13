@@ -72,7 +72,7 @@ int main() {
 
 	hhashmap_free(&map);
 
-	map = hhashmap_new(sizeof(str), sizeof(i64), HKEYTYPE_DIRECT);
+	map = hhashmap_new(sizeof(str), sizeof(i64), HKEYTYPE_STR);
 	str str_key = STR("1");
 	i64 int_value = 1;
 	hhashmap_set(&map, &str_key, &int_value);
