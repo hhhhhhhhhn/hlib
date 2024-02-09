@@ -7,10 +7,10 @@ endif
 all: hlib.o tests
 
 hlib.o: $(wildcard hlib/*.c)
-	cc $(CFLAGS) -c hlib/hlib.c -o hlib.o
+	$(CC) $(CFLAGS) -c hlib/hlib.c -o hlib.o
 
 %_test: %_test.c hlib.o
-	cc $(CFLAGS) -o $@ $< hlib.o
+	$(CC) $(CFLAGS) -o $@ $< hlib.o
 
 tests: mem_test vec_test string_test hashmap_test arena_test sort_test flag_test fs_test parse_test
 

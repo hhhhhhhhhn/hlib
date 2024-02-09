@@ -94,4 +94,6 @@ int main() {
 
 		assert(actual == *iter_value);
 	}
+
+	hhashmap_free(&map);
 }

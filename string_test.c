@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include "hlib/hstring.h"
 #include "hlib/core.h"
-#include <assert.h>
 
 int main() {
 	strb builder = strb_new();

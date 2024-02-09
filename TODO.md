@@ -12,6 +12,7 @@
       - With macros, `#define X_VERSION 0_01_02`
       - Checks with, `#if X_VERSION < 0_01_02 (fail)`
         - Maybe, a `LATEST_TESTED_VERSION`, with a system for detecting untested
+- Add support for underscores when parsing numbers.
 
 ## Done
 - Parsing numbers
@@ -35,6 +36,7 @@
     - Even better: A sized `str_to_cstr_buf(str string, char* buf, usize buf_cap)`,
       and use that for all standard libraries (mainly `hfs.h`)
     - Deprecate `str_to_temp_cstr`
+- `tcc` support
 
 ## Discarded
 - JSON (for now)
