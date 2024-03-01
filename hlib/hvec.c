@@ -40,6 +40,19 @@ void hvec_push(HVec* vec, void* element) {
 	vec->len++;
 }
 
+void hvec_insert(HVec* vec, void* element, usize position) {
+	if (vec->len >= vec->cap) {
+		hvec_resize(vec, vec->cap * 2);
+	}
+	usize to_be_moved = vec->len - position;
+	// First, shift everything one element to the right
+	memcpy((u8*)vec->data + (position+1)*vec->element_size, (u8*)vec->data + position*vec->element_size, to_be_moved*vec->element_size);
+
+	// Then copy the element
+	memcpy((u8*) vec->data + position*vec->element_size, element, vec->element_size);
+	vec->len++;
+}
+
 void hvec_clear(HVec* vec) {
 	vec->len = 0;
 }

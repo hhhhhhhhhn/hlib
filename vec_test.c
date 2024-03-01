@@ -25,5 +25,19 @@ i32 main() {
 		assert(*item == (f64)i);
 	}
 
+	hvec_clear(&vec);
+
+	for (i32 i = 0; i < 5; i++) {
+		f64 item = i;
+		hvec_insert(&vec, &item, vec.len/2);
+	}
+	for (i32 i = 0; i < 5; i++) {
+		f64* item = hvec_at(&vec, i);
+		nullpanic(item);
+		if (1) {
+			printf("%f\n", *item);
+		}
+	}
+
 	hvec_free(&vec);
 }
