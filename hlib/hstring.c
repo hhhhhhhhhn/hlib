@@ -294,6 +294,12 @@ void strb_insert_char(strb* builder, char c, usize index) {
 	builder->len++;
 }
 
+void strb_remove_char(strb* builder, usize index) {
+	assert(index < builder->len);
+	memcpy(&builder->data[index], &builder->data[index + 1], builder->len - index - 1);
+	builder->len--;
+}
+
 void strb_free(strb* builder) {
 	free(builder->data);
 }

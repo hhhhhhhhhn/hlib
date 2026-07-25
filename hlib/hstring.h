@@ -58,6 +58,7 @@ bool strb_append_file(strb* builder, FILE* file); // Returns true on success
 bool strb_append_filepath(strb* builder, str path);
 void strb_push_char(strb* builder, char c);
 void strb_insert_char(strb* builder, char c, usize index);
+void strb_remove_char(strb* builder, usize index);
 void strb_free(strb* builder);
 
 #endif
